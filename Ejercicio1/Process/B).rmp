@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><process version="10.2.000">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="10.2.000" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <process expanded="true">
+      <operator activated="true" class="retrieve" compatibility="10.2.000" expanded="true" height="68" name="Retrieve" width="90" x="45" y="34">
+        <parameter key="repository_entry" value="../../ue22314990-01/whole-dataset"/>
+      </operator>
+      <operator activated="true" class="multiply" compatibility="10.2.000" expanded="true" height="103" name="Multiply" width="90" x="45" y="187"/>
+      <operator activated="true" class="filter_examples" compatibility="10.2.000" expanded="true" height="103" name="fraude (2)" width="90" x="179" y="34">
+        <parameter key="parameter_expression" value=""/>
+        <parameter key="condition_class" value="custom_filters"/>
+        <parameter key="invert_filter" value="false"/>
+        <list key="filters_list">
+          <parameter key="filters_entry_key" value="isFraud.eq.0"/>
+        </list>
+        <parameter key="filters_logic_and" value="true"/>
+        <parameter key="filters_check_metadata" value="true"/>
+      </operator>
+      <operator activated="true" class="store" compatibility="10.2.000" expanded="true" height="68" name="fraude" width="90" x="313" y="136">
+        <parameter key="repository_entry" value="../Data/fraud-data"/>
+      </operator>
+      <operator activated="true" class="store" compatibility="10.2.000" expanded="true" height="68" name="Nofraude" width="90" x="313" y="34">
+        <parameter key="repository_entry" value="../Data/no-fraud-data"/>
+      </operator>
+      <operator activated="true" class="filter_examples" compatibility="10.2.000" expanded="true" height="103" name="Transfer y cash Out" width="90" x="179" y="238">
+        <parameter key="parameter_expression" value=""/>
+        <parameter key="condition_class" value="custom_filters"/>
+        <parameter key="invert_filter" value="false"/>
+        <list key="filters_list">
+          <parameter key="filters_entry_key" value="type.equals.TRANSFER"/>
+          <parameter key="filters_entry_key" value="type.equals.CASH_OUT"/>
+        </list>
+        <parameter key="filters_logic_and" value="false"/>
+        <parameter key="filters_check_metadata" value="true"/>
+      </operator>
+      <operator activated="true" class="store" compatibility="10.2.000" expanded="true" height="68" name="Store (3)" width="90" x="313" y="238">
+        <parameter key="repository_entry" value="../Data/dataset_solo_concashoutytransfer"/>
+      </operator>
+      <connect from_op="Retrieve" from_port="output" to_op="Multiply" to_port="input"/>
+      <connect from_op="Multiply" from_port="output 1" to_op="fraude (2)" to_port="example set input"/>
+      <connect from_op="Multiply" from_port="output 2" to_op="Transfer y cash Out" to_port="example set input"/>
+      <connect from_op="fraude (2)" from_port="example set output" to_op="Nofraude" to_port="input"/>
+      <connect from_op="fraude (2)" from_port="original" to_op="fraude" to_port="input"/>
+      <connect from_op="fraude" from_port="through" to_port="result 3"/>
+      <connect from_op="Nofraude" from_port="through" to_port="result 2"/>
+      <connect from_op="Transfer y cash Out" from_port="example set output" to_op="Store (3)" to_port="input"/>
+      <connect from_op="Store (3)" from_port="through" to_port="result 1"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+      <portSpacing port="sink_result 3" spacing="0"/>
+      <portSpacing port="sink_result 4" spacing="0"/>
+      <description align="center" color="yellow" colored="false" height="73" resized="true" width="131" x="164" y="143">Seleccionamos lo que han cometido fraude</description>
+      <description align="center" color="yellow" colored="false" height="105" resized="false" width="180" x="140" y="346">Seleccionamos el type de transfer y cashout, para identificar mejor el fraude</description>
+    </process>
+  </operator>
+</process>

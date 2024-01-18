@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><process version="10.2.000">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="10.2.000" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <process expanded="true">
+      <operator activated="true" class="retrieve" compatibility="10.2.000" expanded="true" height="68" name="Retrieve" width="90" x="45" y="34">
+        <parameter key="repository_entry" value="dataset_solo_concashoutytransfer"/>
+      </operator>
+      <operator activated="true" class="numerical_to_binominal" compatibility="10.2.000" expanded="true" height="82" name="Numerical to Binominal" width="90" x="179" y="34">
+        <parameter key="attribute_filter_type" value="single"/>
+        <parameter key="attribute" value="isFraud"/>
+        <parameter key="attributes" value=""/>
+        <parameter key="use_except_expression" value="false"/>
+        <parameter key="value_type" value="numeric"/>
+        <parameter key="use_value_type_exception" value="false"/>
+        <parameter key="except_value_type" value="real"/>
+        <parameter key="block_type" value="value_series"/>
+        <parameter key="use_block_type_exception" value="false"/>
+        <parameter key="except_block_type" value="value_series_end"/>
+        <parameter key="invert_selection" value="false"/>
+        <parameter key="include_special_attributes" value="false"/>
+        <parameter key="min" value="0.0"/>
+        <parameter key="max" value="0.0"/>
+      </operator>
+      <operator activated="true" class="blending:set_role" compatibility="10.2.000" expanded="true" height="82" name="Set Role" width="90" x="313" y="34">
+        <list key="set_roles">
+          <parameter key="isFraud" value="label"/>
+          <parameter key="type" value="metadata"/>
+        </list>
+      </operator>
+      <operator activated="true" class="remove_useless_attributes" compatibility="10.2.000" expanded="true" height="82" name="Remove Useless Attributes" width="90" x="447" y="34">
+        <parameter key="numerical_min_deviation" value="0.0"/>
+        <parameter key="nominal_useless_above" value="0.6"/>
+        <parameter key="nominal_remove_id_like" value="false"/>
+        <parameter key="nominal_useless_below" value="0.4"/>
+      </operator>
+      <operator activated="true" class="sample" compatibility="10.2.000" expanded="true" height="82" name="Sample" width="90" x="581" y="34">
+        <parameter key="sample" value="absolute"/>
+        <parameter key="balance_data" value="true"/>
+        <parameter key="sample_size" value="100"/>
+        <parameter key="sample_ratio" value="0.1"/>
+        <parameter key="sample_probability" value="0.1"/>
+        <list key="sample_size_per_class">
+          <parameter key="false" value="8213"/>
+          <parameter key="true" value="8213"/>
+        </list>
+        <list key="sample_ratio_per_class"/>
+        <list key="sample_probability_per_class"/>
+        <parameter key="use_local_random_seed" value="false"/>
+        <parameter key="local_random_seed" value="1992"/>
+      </operator>
+      <operator activated="true" class="store" compatibility="10.2.000" expanded="true" height="68" name="Store" width="90" x="715" y="34">
+        <parameter key="repository_entry" value="../Data/balancedata"/>
+      </operator>
+      <connect from_op="Retrieve" from_port="output" to_op="Numerical to Binominal" to_port="example set input"/>
+      <connect from_op="Numerical to Binominal" from_port="example set output" to_op="Set Role" to_port="example set input"/>
+      <connect from_op="Set Role" from_port="example set output" to_op="Remove Useless Attributes" to_port="example set input"/>
+      <connect from_op="Remove Useless Attributes" from_port="example set output" to_op="Sample" to_port="example set input"/>
+      <connect from_op="Sample" from_port="example set output" to_op="Store" to_port="input"/>
+      <connect from_op="Store" from_port="through" to_port="result 1"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+      <description align="center" color="yellow" colored="false" height="187" resized="true" width="193" x="65" y="142">Seleccionamos las columnas isFraud y type( las declaramos omo 'metadata', lo que significa que no se utilizar&amp;#225; directamente para el modelado pero contiene informaci&amp;#243;n importante sobre los datos</description>
+      <description align="center" color="yellow" colored="false" height="265" resized="true" width="308" x="276" y="148">Optimizamos el conjunto de datos previo al an&amp;#225;lisis de modelado&lt;br&gt;-Establecido en 0.0, lo que significa que cualquier atributo num&amp;#233;rico que no var&amp;#237;e ser&amp;#225; eliminado.&lt;br&gt;-Fijado en 0.6, lo que indica que cualquier atributo nominal en el cual m&amp;#225;s del 60% de los registros compartan el mismo valor ser&amp;#225; descartado&lt;br&gt;-Establecido en 0.4, significa que cualquier atributo nominal en el que menos del 40% de los registros compartan un valor espec&amp;#237;fico tambi&amp;#233;n ser&amp;#225; eliminado</description>
+      <description align="center" color="yellow" colored="false" height="105" resized="false" width="180" x="597" y="145">Balanceamos el dataset</description>
+    </process>
+  </operator>
+</process>
